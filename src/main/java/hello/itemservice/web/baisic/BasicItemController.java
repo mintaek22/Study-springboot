@@ -2,18 +2,19 @@ package hello.itemservice.web.baisic;
 
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
+import hello.itemservice.web.validation.form.ItemSaveForm;
+import hello.itemservice.web.validation.form.ItemUpdateForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Controller
@@ -47,7 +48,7 @@ public class BasicItemController {
     }
 
     @GetMapping("/add")
-    public String addForm() {
+    public String addForm(@ModelAttribute Item item) {
         return "basic/addForm";
     }
     //쿼리 파라미터를 이용하여 view에 전달
@@ -80,44 +81,36 @@ public class BasicItemController {
     /**
      * RedirectAttributes
      * redirect url에 값을 추가 시켜준다
+     * @Validated를 이용하면 supports를 통해 필요한 검증기를 찾고 호출한다
      */
     @PostMapping("/add")
-    public String addItem(@ModelAttribute Item item,
-                            RedirectAttributes redirectAttributes,
-                            Model model) {
+    public String addItem(@Validated @ModelAttribute("item") ItemSaveForm form,
+                            BindingResult bindingResult,
+                            RedirectAttributes redirectAttributes) {
 
-        Map<String, String> errors = new HashMap<>();
-
-        //검증 로직 - itemName에 글자가 없을 경우
-        if(!StringUtils.hasText(item.getItemName())){
-            errors.put("itemName", "상품 이름은 필수입니다.");
-        }
-        //검증 로직 - itemPrice가 범위를 넘어설 경우
-        if (item.getPrice() == null || item.getPrice() < 1000 || item.getPrice() > 1000000) {
-            errors.put("itemPrice", "가격은 1,000 ~ 1,000,000 까지 허용합니다.");
-        }
-        //검증 로직 - itemQuantity의 수량 검즘
-        if (item.getQuantity() == null || item.getQuantity() >= 9999) {
-            errors.put("quantity", "수량은 최대 9,999 까지 허용합니다.");
-        }
-        // 특정 필드가 아닌 복합 룰 검증
-        if (item.getPrice() != null && item.getQuantity() != null){
-            int resultPrice = item.getPrice() * item.getQuantity();
-            if(resultPrice < 10000){
-                errors.put("globalError", "가격 * 수량의 값이 10000원 이상이여야 합니다. 현재 는 " + resultPrice + "입니다");
+        if (form.getPrice() != null && form.getQuantity() != null) {
+            int resultPrice = form.getPrice() * form.getQuantity();
+            if (resultPrice < 10000) {
+                bindingResult.reject("totalPriceMin", new Object[]{10000, resultPrice}, null);
             }
         }
 
-        if(!errors.isEmpty()){
-            log.info("errors ={}",errors);
-            model.addAttribute("errors",errors);
-            return "basic/addForm"; //입력폼 템플릿으로 보내버리기
+        if (bindingResult.hasErrors()) {
+            log.info("errors={}", bindingResult);
+            return "basic/addForm";
         }
+
+        //성공 로직
+
+        Item item = new Item();
+        item.setItemName(form.getItemName());
+        item.setItemName(form.getItemName());
+        item.setItemName(form.getItemName());
 
         Item savedItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
         redirectAttributes.addAttribute("status", true);
-        return "redirect:/basic/items/{itemId}";
+        return "redirect:{itemId}";
     }
 
     @GetMapping("/{itemId}/edit")
@@ -128,8 +121,25 @@ public class BasicItemController {
     }
 
     @PostMapping("/{itemId}/edit")
-    public String edit(@PathVariable Long itemId, @ModelAttribute Item item) {
-        itemRepository.update(itemId, item);
+    public String edit(@PathVariable Long itemId, @Validated @ModelAttribute("item") ItemUpdateForm form, BindingResult bindingResult) {
+
+        if (form.getPrice() != null && form.getQuantity() != null) {
+            int resultPrice = form.getPrice() * form.getQuantity();
+            if (resultPrice < 10000) {
+                bindingResult.reject("totalPriceMin", new Object[]{10000, resultPrice}, null);
+            }
+        }
+
+        Item itemPara = new Item();
+        itemPara.setItemName(form.getItemName());
+        itemPara.setPrice(form.getPrice());
+        itemPara.setQuantity(form.getQuantity());
+
+        if (bindingResult.hasErrors()) {
+            log.info("errors={}", bindingResult);
+            return "basic/editForm";
+        }
+        itemRepository.update(itemId,itemPara);
         return "redirect:/basic/items/{itemId}";
     }
 }

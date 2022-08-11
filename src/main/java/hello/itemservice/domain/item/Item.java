@@ -2,16 +2,32 @@ package hello.itemservice.domain.item;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+
+/**
+ * @Notnull은 Null값만 허용되지 않는다 "" , " "는 가능하다
+ * @NotBlank는 null," ","" 다 허용하지 않는다
+ */
 @Getter @Setter
 public class Item {
 
+    //@NotNull(groups =  UpdateCheck.class)
     private Long id;
+    //@NotBlank(groups = {SaveCheck.class,UpdateCheck.class})
     private String itemName;
-    //null 가능
-    private Integer price;
-    private Integer quantity;
 
+    //@NotNull(groups = {SaveCheck.class,UpdateCheck.class})
+   // @Range(min = 1000,max=100000,groups = {SaveCheck.class,UpdateCheck.class})
+    private Integer price;
+
+    //@NotNull(groups = {SaveCheck.class,UpdateCheck.class})
+    //@Max(value = 9999,groups = {SaveCheck.class})
+    private Integer quantity;
     public Item() {}
 
     public Item(String itemName, Integer price, Integer quantity) {

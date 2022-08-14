@@ -1,10 +1,8 @@
 package hello.itemservice.domain.item;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,21 +14,21 @@ public class ItemRepository {
 
 
     //멀티스레드 환경에서는 HaspMap x,ConcurrentHashMap o
-    private static final Map<Long, Item> store = new ConcurrentHashMap<>();
+    private static final Map<Long, Item> itemMap = new ConcurrentHashMap<>();
     private static long sequence = 0L;
 
     public Item save(Item item) {
         item.setId(++sequence);
-        store.put(item.getId(), item);
+        itemMap.put(item.getId(), item);
         return item;
     }
 
     public Item findById(Long id) {
-        return store.get(id);
+        return itemMap.get(id);
     }
 
     public List<Item> findAll() {
-        return new ArrayList<>(store.values());
+        return new ArrayList<>(itemMap.values());
     }
 
     public void update(Long itemId, Item updateParam) {
@@ -41,6 +39,6 @@ public class ItemRepository {
     }
 
     public void clearStore() {
-        store.clear();
+        itemMap.clear();
     }
 }

@@ -1,9 +1,7 @@
-package hello.itemservice.web.baisic;
+package hello.itemservice.web.item;
 
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
-import hello.itemservice.web.validation.form.ItemSaveForm;
-import hello.itemservice.web.validation.form.ItemUpdateForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -21,8 +19,8 @@ import java.util.List;
 //final 이 붙은 멤버변수만 사용해서 생성자를 자동으로 만들어준다.
 //생성자가 한개이면 Autowired 주입
 @RequiredArgsConstructor
-@RequestMapping("/basic/items")
-public class BasicItemController {
+@RequestMapping("item")
+public class ItemController {
 
     private final ItemRepository itemRepository;
 
@@ -30,7 +28,7 @@ public class BasicItemController {
     public String items(Model model) {
         List<Item> items = itemRepository.findAll();
         model.addAttribute("items", items);
-        return "basic/items";
+        return "item/items";
     }
 
     @PostConstruct
@@ -44,7 +42,7 @@ public class BasicItemController {
     public String findById(@PathVariable Long itemId, Model model){
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item",item);
-        return "basic/item";
+        return "item/item";
     }
 
     @GetMapping("/add")
@@ -97,7 +95,7 @@ public class BasicItemController {
 
         if (bindingResult.hasErrors()) {
             log.info("errors={}", bindingResult);
-            return "basic/addForm";
+            return "item/addForm";
         }
 
         //성공 로직
@@ -110,14 +108,14 @@ public class BasicItemController {
         Item savedItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
         redirectAttributes.addAttribute("status", true);
-        return "redirect:{itemId}";
+        return "redirect:/item/{itemId}";
     }
 
     @GetMapping("/{itemId}/edit")
     public String editForm(@PathVariable Long itemId, Model model) {
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
-        return "basic/editForm";
+        return "item/editForm";
     }
 
     @PostMapping("/{itemId}/edit")
@@ -140,6 +138,6 @@ public class BasicItemController {
             return "basic/editForm";
         }
         itemRepository.update(itemId,itemPara);
-        return "redirect:/basic/items/{itemId}";
+        return "redirect:/item/{itemId}";
     }
 }

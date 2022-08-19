@@ -19,7 +19,7 @@ import java.util.List;
 //final 이 붙은 멤버변수만 사용해서 생성자를 자동으로 만들어준다.
 //생성자가 한개이면 Autowired 주입
 @RequiredArgsConstructor
-@RequestMapping("item")
+@RequestMapping("items")
 public class ItemController {
 
     private final ItemRepository itemRepository;

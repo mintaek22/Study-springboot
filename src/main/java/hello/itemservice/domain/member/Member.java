@@ -14,8 +14,8 @@ public class Member {
     private String loginId;
 
     @NotEmpty
-    private String username;
+    private String password;
 
     @NotEmpty
-    private String password;
+    private String username;
 }

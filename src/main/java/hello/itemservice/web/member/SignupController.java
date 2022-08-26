@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.sql.SQLException;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class SignupController {
     }
 
     @PostMapping("/add")
-    public String addMember(@Validated @ModelAttribute Member member, BindingResult bindingResult){
+    public String addMember(@Validated @ModelAttribute Member member, BindingResult bindingResult) throws SQLException {
 
         if (bindingResult.hasErrors()) {
             log.info("errors={}", bindingResult);

@@ -11,7 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.annotation.PostConstruct;
+import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -25,21 +25,16 @@ public class ItemController {
     private final ItemRepository itemRepository;
 
     @GetMapping
-    public String items(Model model) {
+    public String items(Model model) throws SQLException {
         List<Item> items = itemRepository.findAll();
         model.addAttribute("items", items);
         return "item/items";
     }
-
-    @PostConstruct
-    public void init() {
-        itemRepository.save(new Item("testA", 10000, 10));
-        itemRepository.save(new Item("testB", 20000, 20));
-    }
+    
 
     //itemId를 이용해 상품 조회
     @GetMapping("/{itemId}")
-    public String findById(@PathVariable Long itemId, Model model){
+    public String findById(@PathVariable Long itemId, Model model) throws SQLException {
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item",item);
         return "item/item";
@@ -84,7 +79,7 @@ public class ItemController {
     @PostMapping("/add")
     public String addItem(@Validated @ModelAttribute("item") ItemSaveForm form,
                             BindingResult bindingResult,
-                            RedirectAttributes redirectAttributes) {
+                            RedirectAttributes redirectAttributes) throws SQLException {
 
         if (form.getPrice() != null && form.getQuantity() != null) {
             int resultPrice = form.getPrice() * form.getQuantity();
@@ -112,14 +107,14 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}/edit")
-    public String editForm(@PathVariable Long itemId, Model model) {
+    public String editForm(@PathVariable Long itemId, Model model) throws SQLException {
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
         return "item/editForm";
     }
 
     @PostMapping("/{itemId}/edit")
-    public String edit(@PathVariable Long itemId, @Validated @ModelAttribute("item") ItemUpdateForm form, BindingResult bindingResult) {
+    public String edit(@PathVariable Long itemId, @Validated @ModelAttribute("item") ItemUpdateForm form, BindingResult bindingResult) throws SQLException {
 
         if (form.getPrice() != null && form.getQuantity() != null) {
             int resultPrice = form.getPrice() * form.getQuantity();

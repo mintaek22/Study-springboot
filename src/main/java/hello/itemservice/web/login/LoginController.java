@@ -18,6 +18,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.sql.SQLException;
 
 @Slf4j
 @Controller
@@ -35,7 +36,7 @@ public class LoginController {
     public String login(@Validated @ModelAttribute("member") MemberLoginForm form,
                             @RequestParam(defaultValue = "/")String redirectURL,
                             BindingResult bindingResult,
-                            HttpServletRequest request){
+                            HttpServletRequest request) throws SQLException {
 
         Member member = loginService.login_check(form.getLoginId(), form.getPassword());
         log.info("login? {}", member);

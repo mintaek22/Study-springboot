@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 
 /**
@@ -16,17 +14,17 @@ import javax.validation.constraints.NotNull;
 @Getter @Setter
 public class Item {
 
-    //@NotNull(groups =  UpdateCheck.class)
     private Long id;
-    //@NotBlank(groups = {SaveCheck.class,UpdateCheck.class})
+
+    @NotBlank
     private String itemName;
 
-    //@NotNull(groups = {SaveCheck.class,UpdateCheck.class})
-   // @Range(min = 1000,max=100000,groups = {SaveCheck.class,UpdateCheck.class})
+    @NotBlank
+    @Range(min = 1000, max = 1000000)
     private Integer price;
 
-    //@NotNull(groups = {SaveCheck.class,UpdateCheck.class})
-    //@Max(value = 9999,groups = {SaveCheck.class})
+    @NotBlank
+    @Range(min = 1, max = 100)
     private Integer quantity;
     public Item() {}
 

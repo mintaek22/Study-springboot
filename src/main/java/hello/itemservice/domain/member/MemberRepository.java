@@ -1,18 +1,23 @@
 package hello.itemservice.domain.member;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.NoSuchElementException;
-
-import static hello.itemservice.domain.jdbc.DBConnectionUtil.getConnection;
 
 @Slf4j
 @Repository
 public class MemberRepository {
 
     private static long sequence = 0L;
+    private final DataSource dataSource;
+
+    public MemberRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public Member save(Member member) throws SQLException {
         String sql = "insert into member(id,loginId,password,username) values(?,?,?,?)";
@@ -67,27 +72,15 @@ public class MemberRepository {
     }
 
 
+    private Connection getConnection() throws SQLException {
+        Connection con = dataSource.getConnection();
+        log.info("get connection={}, class={}", con, con.getClass());
+        return con;
+    }
+
     private void close(Connection con, Statement stmt, ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
-        if (con != null) {
-            try {
-                con.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
+        JdbcUtils.closeResultSet(rs);
+        JdbcUtils.closeStatement(stmt);
+        JdbcUtils.closeConnection(con);
     }
 }

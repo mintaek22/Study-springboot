@@ -1,14 +1,14 @@
 package hello.itemservice.domain.item;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import static hello.itemservice.domain.jdbc.DBConnectionUtil.getConnection;
 
 
 @Slf4j
@@ -16,6 +16,11 @@ import static hello.itemservice.domain.jdbc.DBConnectionUtil.getConnection;
 public class ItemRepository {
 
     private static int sequence = 0;
+    private final DataSource dataSource;
+
+    public ItemRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public Item save(Item item) throws SQLException {
         String sql = "insert into item(id,ItemName,price,quantity) values(?,?,?,?)";
@@ -124,27 +129,15 @@ public class ItemRepository {
         }
     }
 
+    private Connection getConnection() throws SQLException {
+        Connection con = dataSource.getConnection();
+        log.info("get connection={}, class={}", con, con.getClass());
+        return con;
+    }
+
     private void close(Connection con, Statement stmt, ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
-        if (con != null) {
-            try {
-                con.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
+        JdbcUtils.closeResultSet(rs);
+        JdbcUtils.closeStatement(stmt);
+        JdbcUtils.closeConnection(con);
     }
 }

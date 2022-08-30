@@ -15,9 +15,7 @@ import static hello.itemservice.domain.jdbc.DBConnectionUtil.getConnection;
 @Repository
 public class ItemRepository {
 
-
-    //멀티스레드 환경에서는 HaspMap x,ConcurrentHashMap o
-    private static long sequence = 0L;
+    private static int sequence = 0;
 
     public Item save(Item item) throws SQLException {
         String sql = "insert into item(id,ItemName,price,quantity) values(?,?,?,?)";
@@ -27,11 +25,13 @@ public class ItemRepository {
         try {
             con = getConnection();
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, String.valueOf(sequence++));
+            pstmt.setInt(1, sequence++);
             pstmt.setString(2,item.getItemName());
             pstmt.setInt(3,item.getPrice());
             pstmt.setInt(4,item.getQuantity());
             pstmt.executeUpdate();
+
+            item.setId(sequence);
             return item;
         } catch (SQLException e) {
             log.error("db error", e);
@@ -56,7 +56,7 @@ public class ItemRepository {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 Item item = new Item();
-                item.setId(Long.valueOf(rs.getString("id")));
+                item.setId(rs.getInt("id"));
                 item.setItemName(rs.getString("ItemName"));
                 item.setPrice(Integer.valueOf(rs.getString("price")));
                 item.setQuantity(Integer.valueOf(rs.getString("quantity")));
@@ -87,10 +87,10 @@ public class ItemRepository {
             List<Item> list = new ArrayList<>();
             while (rs.next()) {
                 Item item = new Item();
-                item.setId(Long.valueOf(rs.getString("id")));
+                item.setId(rs.getInt("id"));
                 item.setItemName(rs.getString("ItemName"));
-                item.setPrice(Integer.valueOf(rs.getString("price")));
-                item.setQuantity(Integer.valueOf(rs.getString("quantity")));
+                item.setPrice(rs.getInt("price"));
+                item.setQuantity(rs.getInt("quantity"));
                 list.add(item);
             }
             return list;
@@ -103,11 +103,10 @@ public class ItemRepository {
     }
 
     public void update(Long id, Item updateParam) throws SQLException {
-        String sql = "update item set ItemName=? price=? quantity=? where id=?";
+        String sql = "update item set ItemName =?,price=?,quantity=? where id=?";
 
         Connection con = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
 
         try {
             con = getConnection();
@@ -116,12 +115,12 @@ public class ItemRepository {
             pstmt.setInt(2,updateParam.getPrice());
             pstmt.setInt(3,updateParam.getQuantity());
             pstmt.setInt(4, Math.toIntExact(id));
-            rs = pstmt.executeQuery();
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;
         } finally {
-            close(con, pstmt, rs);
+            close(con, pstmt,null);
         }
     }
 

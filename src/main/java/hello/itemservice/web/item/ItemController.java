@@ -40,9 +40,9 @@ public class ItemController {
         return "item/item";
     }
 
-    @GetMapping("/add")
+    @GetMapping("add")
     public String addForm(@ModelAttribute Item item) {
-        return "basic/addForm";
+        return "item/addForm";
     }
     //쿼리 파라미터를 이용하여 view에 전달
    /* @PostMapping("/add")
@@ -97,13 +97,13 @@ public class ItemController {
 
         Item item = new Item();
         item.setItemName(form.getItemName());
-        item.setItemName(form.getItemName());
-        item.setItemName(form.getItemName());
+        item.setPrice(form.getPrice());
+        item.setQuantity(form.getQuantity());
 
         Item savedItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
         redirectAttributes.addAttribute("status", true);
-        return "redirect:/item/{itemId}";
+        return "redirect:/items/{itemId}";
     }
 
     @GetMapping("/{itemId}/edit")
@@ -130,9 +130,9 @@ public class ItemController {
 
         if (bindingResult.hasErrors()) {
             log.info("errors={}", bindingResult);
-            return "basic/editForm";
+            return "item/editForm";
         }
         itemRepository.update(itemId,itemPara);
-        return "redirect:/item/{itemId}";
+        return "redirect:/items/{itemId}";
     }
 }

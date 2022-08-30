@@ -14,9 +14,9 @@ import javax.validation.constraints.NotBlank;
 @Getter @Setter
 public class Item {
 
-    private Long id;
+    private int id;
 
-    @NotBlank
+    @NotBlank(message = "")
     private String itemName;
 
     @NotBlank

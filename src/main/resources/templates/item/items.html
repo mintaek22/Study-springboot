@@ -9,13 +9,27 @@
     <div class="py-5 text-center">
         <h2>상품 목록</h2>
     </div>
-    <div class="row">
-        <div class="col">
-            <button class="btn btn-primary float-end" onclick="location.href='addForm.html'"
-                    th:onclick="|location.href='@{items/add}'|"
-                    type="button">상품 등록</button>
+    <div class="container">
+        <form action="items.html" th:action th:object="${item}" method="post">
+        <div class="row">
+            <div class="col">
+                <input type="text" id="searchName" th:field="*{itemName}" class="form-control"
+                       placeholder="상품명" value="">
+            </div>
+            <div class="col">
+                <input type="text" id="searchPrice" th:field="*{price}" class="form-control"
+                       placeholder="최대 가격" value="">
+            </div>
+            <div class="col">
+                <button class="btn btn-primary float-end" type="submit" >찾기</button>
+            </div>
+            <div class="col">
+                <button class="btn btn-primary float-end" onclick="location.href='addForm.html'"
+                        th:onclick="|location.href='@{items/add}'|"
+                        type="button">상품 등록</button>
+            </div>
         </div>
-    </div>
+        </form>
     <hr class="my-4">
     <div>
         <table class="table">
